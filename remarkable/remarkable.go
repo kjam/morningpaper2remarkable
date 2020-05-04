@@ -2,14 +2,14 @@ package remarkable
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
+	"fmt"
 	"strings"
 
 	"github.com/juruen/rmapi/api"
 	"github.com/juruen/rmapi/filetree"
-	"github.com/juruen/rmapi/log"
 	"github.com/juruen/rmapi/model"
+	"github.com/juruen/rmapi/log"
 	"github.com/juruen/rmapi/util"
 	"github.com/sirupsen/logrus"
 )
@@ -47,13 +47,13 @@ func New() (Remarkable, error) {
 }
 
 // SyncFileAndRename syncs a file to the remarkable cloud and then renames it.
-func (r Remarkable) SyncFileAndRename(file, title string) error {
+func (r Remarkable) SyncFileAndRename(file, title, folder string) error {
 	if len(file) < 1 || len(title) < 1 {
 		return errors.New("file and title cannot be empty")
 	}
 
 	// Get the node for the directory.
-	dir, err := r.api.Filetree.NodeByPath(filepath.Dir(file), r.api.Filetree.Root())
+	dir, err := r.api.Filetree.NodeByPath(folder, r.api.Filetree.Root())
 	if err != nil || dir.IsFile() {
 		return fmt.Errorf("%s is a file not a directory", filepath.Dir(file))
 	}
@@ -71,7 +71,7 @@ func (r Remarkable) SyncFileAndRename(file, title string) error {
 	// Extra walk because sometimes the above does not catch it....
 	var found bool
 	filetree.WalkTree(dir, filetree.FileTreeVistor{
-		Visit: func(node *model.Node, path []string) bool {
+			Visit: func(node *model.Node, path []string) bool {
 			entryName := filepath.Join(strings.Join(path, "/"), node.Name())
 
 			if strings.Contains(entryName, title) {

@@ -92,7 +92,7 @@ I added a hidden command for that `download`.
 You can use it like the following:
 
 ```bash
-$ morningpaper2remarkable download http://nickm.com/trope_tank/10_PRINT_121114.pdf "10 PRINT"
+$ morningpaper2remarkable download http://nickm.com/trope_tank/10_PRINT_121114.pdf "10 PRINT" "directory"
 ```
 
 This will download the PDF from the URL at `arg[0]` put it in a folder, default

@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -32,23 +33,22 @@ func (cmd *downloadCommand) Run(ctx context.Context, args []string) error {
 		return errors.New("must pass a title for the pdf")
 	}
 
-	// We want the default dir for this command to be papers.
-	if dataDir == defaultDir {
-		dataDir = "papers"
-	}
-
-	if err := createDirectory(dataDir); err != nil {
+	if err := createDirectory(args[2]); err != nil {
 		return err
 	}
 
 	// Download the pdf.
-	logrus.WithFields(logrus.Fields{
-		"link": args[0],
-	}).Debug("downloading paper")
+	
+	file := args[0]
+	if strings.HasPrefix("http", file) {
+	  	logrus.WithFields(logrus.Fields{
+			"link": args[0],
+		}).Debug("downloading paper")
 
-	file := filepath.Join(dataDir, args[1]+".pdf")
-	if err := downloadPaper(args[0], file); err != nil {
-		return err
+		file := filepath.Join(dataDir, args[1]+".pdf")
+		if err := downloadPaper(args[0], file); err != nil {
+			return err
+		}
 	}
 
 	logrus.WithFields(logrus.Fields{
@@ -57,10 +57,10 @@ func (cmd *downloadCommand) Run(ctx context.Context, args []string) error {
 	}).Info("downloaded paper to file")
 
 	// Sync the file with remarkable cloud.
-	if err := rmAPI.SyncFileAndRename(file, args[1]); err != nil {
+	if err := rmAPI.SyncFileAndRename(file, args[1], args[2]); err != nil {
 		return err
 	}
 
-	fmt.Printf("Downloaded %s and renamed to %s", args[0], args[1])
+	fmt.Printf("Downloaded %s and renamed to %s in folder %s", args[0], args[1], args[2])
 	return nil
 }
